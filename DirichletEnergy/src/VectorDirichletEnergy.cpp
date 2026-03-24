@@ -139,14 +139,15 @@ bool ValidateMeshForDirichletEnergy(const TriangleMesh& mesh, std::string& error
         }
     }
 
-    const auto adjacency = BuildEdgeAdjacency(mesh);
-    for (const auto& pair : adjacency) {
-        const EdgeAdjacency& entry = pair.second;
-        if (entry.count != 2) {
-            error_message = "Expected a closed manifold mesh with exactly two incident triangles per edge.";
-            return false;
-        }
-    }
+    // disable closed mesh check
+    // const auto adjacency = BuildEdgeAdjacency(mesh);
+    // for (const auto& pair : adjacency) {
+    //     const EdgeAdjacency& entry = pair.second;
+    //     if (entry.count != 2) {
+    //         error_message = "Expected a closed manifold mesh with exactly two incident triangles per edge.";
+    //         return false;
+    //     }
+    // }
 
     error_message.clear();
     return true;

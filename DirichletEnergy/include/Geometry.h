@@ -2,10 +2,13 @@
 
 #include <array>
 #include <cmath>
+#include <ostream>
 #include <cstddef>
 #include <vector>
 
 namespace dirichlet {
+
+using VertexColor = std::array<unsigned char, 3>;
 
 struct Vec3 {
     double x = 0.0;
@@ -19,6 +22,7 @@ struct Triangle {
 
 struct TriangleMesh {
     std::vector<Vec3> vertices;
+    std::vector<VertexColor> vertex_colors;
     std::vector<Triangle> faces;
     std::vector<Vec3> face_vectors;
 };
@@ -76,6 +80,10 @@ inline Vec3 TriangleNormal(const TriangleMesh& mesh, std::size_t face_index) {
     const Vec3& p1 = mesh.vertices.at(face.vertex_indices[1]);
     const Vec3& p2 = mesh.vertices.at(face.vertex_indices[2]);
     return Normalize(Cross(p1 - p0, p2 - p0));
+}
+
+inline std::ostream& operator<<(std::ostream& os, const Vec3& v) {
+    return os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
 }
 
 }  // namespace dirichlet

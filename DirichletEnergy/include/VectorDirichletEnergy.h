@@ -1,9 +1,11 @@
 #pragma once
 
+#include <iostream>
 #include <cstddef>
 #include <string>
 
 #include "Geometry.h"
+
 
 namespace dirichlet {
 
