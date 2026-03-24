@@ -118,7 +118,7 @@ bool ValidateMeshForDirichletEnergy(const TriangleMesh& mesh, std::string& error
     return true;
 }
 
-DirichletEnergyResult ComputeVectorDirichletEnergy(const TriangleMesh& mesh) {
+DirichletEnergyResult ComputeVectorDirichletEnergy(const TriangleMesh& mesh, bool use_unfold) {
     const auto adjacency = BuildEdgeAdjacency(mesh);
     DirichletEnergyResult result;
 
@@ -135,10 +135,21 @@ DirichletEnergyResult ComputeVectorDirichletEnergy(const TriangleMesh& mesh) {
         const double cot_beta = CotangentAtOppositeVertex(mesh, edge, entry.incident_faces[1].opposite_vertex);
         const double weight = cot_alpha + cot_beta;
 
-        const Vec3 n1 = TriangleNormal(mesh, face1);
-        const Vec3 n2 = TriangleNormal(mesh, face2);
-        const Vec3 transported_v2 = RotateVectorBetweenNormals(mesh.face_vectors[face2], n2, n1);
-        const double mismatch = Norm(mesh.face_vectors[face1] - transported_v2);
+        const Vec3 face1_vector = mesh.face_vectors[face1];
+        const Vec3 face2_vector = mesh.face_vectors[face2];
+        Vec3 comparison_vector = face2_vector;
+        
+        if (use_unfold) {
+            const Vec3 n1 = TriangleNormal(mesh, face1);
+            const Vec3 n2 = TriangleNormal(mesh, face2);
+            // check consistency of normal direction 
+            // if(Dot(n1, n2) <= 0.0)
+            // {
+            //     std::cout << "Warning: Angle larger than 90 degrees detected between faces " << face1 << " " << n1 << " and " << face2 << " " << n2 << "." << std::endl;
+            // }
+            comparison_vector = RotateVectorBetweenNormals(face2_vector, n2, n1);
+        }
+        const double mismatch = Norm(face1_vector - comparison_vector);
 
         result.total_weighted_energy += weight * mismatch;
         ++result.interior_edge_count;

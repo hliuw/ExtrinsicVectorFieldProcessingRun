@@ -12,6 +12,7 @@ struct CommandLineOptions {
     std::string output_path;
     dirichlet::interpolation::VertexToFaceInterpolationMethod interpolation_method =
         dirichlet::interpolation::VertexToFaceInterpolationMethod::kNone;
+    bool use_unfold = true;
     bool show_help = false;
 };
 
@@ -41,9 +42,12 @@ dirichlet::TriangleMesh BuildSampleMesh() {
 
 void PrintUsage(const char* executable_name) {
     std::cout << "Usage: " << executable_name
-              << " [--interpolation averaging|rotation] [--output output_mesh.ply] [input_mesh.ply]" << std::endl;
+              << " [--interpolation average|rotation] [--nounfold] [--output output_mesh.ply] [input_mesh.ply]"
+              << std::endl;
     std::cout << "  Default input: .ply with face vf_0/vf_1/vf_2 properties" << std::endl;
-    std::cout << "  --interpolation, -i   Interpolate vertex vf_* to faces. Supported values: averaging, rotation"
+    std::cout << "  --interpolation, -i   Interpolate vertex vf_* to faces. Supported values: average, rotation"
+              << std::endl;
+    std::cout << "  --nounfold            Compare neighboring face vectors directly without normal transport"
               << std::endl;
     std::cout << "  --output, -o          Write the loaded/interpolated face-based vf_* mesh to a .ply file" << std::endl;
     std::cout << "  --help, -h            Show this help message" << std::endl;
@@ -55,6 +59,11 @@ bool ParseCommandLine(int argc, char** argv, CommandLineOptions& options, std::s
 
         if (argument == "--help" || argument == "-h") {
             options.show_help = true;
+            continue;
+        }
+
+        if (argument == "--nounfold") {
+            options.use_unfold = false;
             continue;
         }
 
@@ -161,7 +170,8 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    const dirichlet::DirichletEnergyResult result = dirichlet::ComputeVectorDirichletEnergy(mesh);
+    const dirichlet::DirichletEnergyResult result =
+        dirichlet::ComputeVectorDirichletEnergy(mesh, options.use_unfold);
     std::cout << "Interior edges: " << result.interior_edge_count << std::endl;
     std::cout << "Total weighted energy: " << result.total_weighted_energy << std::endl;
     std::cout << "Average weighted energy: " << result.average_weighted_energy << std::endl;

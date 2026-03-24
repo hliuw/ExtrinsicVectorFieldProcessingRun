@@ -16,6 +16,6 @@ struct DirichletEnergyResult {
 };
 
 bool ValidateMeshForDirichletEnergy(const TriangleMesh& mesh, std::string& error_message);
-DirichletEnergyResult ComputeVectorDirichletEnergy(const TriangleMesh& mesh);
+DirichletEnergyResult ComputeVectorDirichletEnergy(const TriangleMesh& mesh, bool use_unfold = false);
 
 }  // namespace dirichlet
