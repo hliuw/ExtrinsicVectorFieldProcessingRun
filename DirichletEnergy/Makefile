@@ -15,10 +15,10 @@ main.obj: main.cpp include\Geometry.h include\MeshIO.h include\VectorDirichletEn
 MeshIO.obj: src\MeshIO.cpp include\MeshIO.h include\Geometry.h include\happly.h include\VectorFieldInterpolation.h
     $(CXX) $(CXXFLAGS) $(INCLUDES) /c src\MeshIO.cpp /Fo$@
 
-VectorFieldInterpolation.obj: src\VectorFieldInterpolation.cpp include\VectorFieldInterpolation.h include\Geometry.h
+VectorFieldInterpolation.obj: src\VectorFieldInterpolation.cpp include\VectorFieldInterpolation.h include\Geometry.h include\MathUtils.h
     $(CXX) $(CXXFLAGS) $(INCLUDES) /c src\VectorFieldInterpolation.cpp /Fo$@
 
-VectorDirichletEnergy.obj: src\VectorDirichletEnergy.cpp include\VectorDirichletEnergy.h include\Geometry.h
+VectorDirichletEnergy.obj: src\VectorDirichletEnergy.cpp include\VectorDirichletEnergy.h include\Geometry.h include\MathUtils.h
     $(CXX) $(CXXFLAGS) $(INCLUDES) /c src\VectorDirichletEnergy.cpp /Fo$@
 
 clean:

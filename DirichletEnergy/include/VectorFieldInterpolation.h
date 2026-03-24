@@ -10,6 +10,7 @@ namespace dirichlet::interpolation {
 enum class VertexToFaceInterpolationMethod {
     kNone,
     kVertexAverage,
+    kRotation,
 };
 
 bool TryParseVertexToFaceInterpolationMethod(const std::string& method_name,

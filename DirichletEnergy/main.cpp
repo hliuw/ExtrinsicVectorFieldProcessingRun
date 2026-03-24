@@ -40,9 +40,11 @@ dirichlet::TriangleMesh BuildSampleMesh() {
 }
 
 void PrintUsage(const char* executable_name) {
-    std::cout << "Usage: " << executable_name << " [--interpolation averaging] [--output output_mesh.ply] [input_mesh.ply]" << std::endl;
+    std::cout << "Usage: " << executable_name
+              << " [--interpolation averaging|rotation] [--output output_mesh.ply] [input_mesh.ply]" << std::endl;
     std::cout << "  Default input: .ply with face vf_0/vf_1/vf_2 properties" << std::endl;
-    std::cout << "  --interpolation, -i   Interpolate vertex vf_* to faces. Supported values: averaging" << std::endl;
+    std::cout << "  --interpolation, -i   Interpolate vertex vf_* to faces. Supported values: averaging, rotation"
+              << std::endl;
     std::cout << "  --output, -o          Write the loaded/interpolated face-based vf_* mesh to a .ply file" << std::endl;
     std::cout << "  --help, -h            Show this help message" << std::endl;
 }
