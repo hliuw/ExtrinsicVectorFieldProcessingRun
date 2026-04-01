@@ -12,6 +12,7 @@ namespace dirichlet {
 struct DirichletEnergyResult {
     double total_weighted_energy = 0.0;
     double average_weighted_energy = 0.0;
+    double area_weighted_vector_norm = 0.0;
     std::size_t interior_edge_count = 0;
 };
 

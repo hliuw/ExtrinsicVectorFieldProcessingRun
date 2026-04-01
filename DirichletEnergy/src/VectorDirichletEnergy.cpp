@@ -122,6 +122,24 @@ DirichletEnergyResult ComputeVectorDirichletEnergy(const TriangleMesh& mesh, boo
     const auto adjacency = BuildEdgeAdjacency(mesh);
     DirichletEnergyResult result;
 
+    double total_area = 0.0;
+    double area_weighted_norm_sum = 0.0;
+    for (std::size_t i = 0; i < mesh.faces.size(); ++i) {
+        const Triangle& face = mesh.faces[i];
+        const Vec3& p0 = mesh.vertices[face.vertex_indices[0]];
+        const Vec3& p1 = mesh.vertices[face.vertex_indices[1]];
+        const Vec3& p2 = mesh.vertices[face.vertex_indices[2]];
+        const double area = 0.5 * Norm(Cross(p1 - p0, p2 - p0));
+        area_weighted_norm_sum += area * Norm(mesh.face_vectors[i]);
+        total_area += area;
+    }
+
+    result.area_weighted_vector_norm = area_weighted_norm_sum;
+    // if we just want v^TMv we should not divide by total area
+    // if (total_area > 0.0) {
+    //    result.area_weighted_vector_norm = area_weighted_norm_sum / total_area;
+    //}
+
     for (const auto& pair : adjacency) {
         const EdgeKey& edge = pair.first;
         const EdgeAdjacency& entry = pair.second;
@@ -133,7 +151,7 @@ DirichletEnergyResult ComputeVectorDirichletEnergy(const TriangleMesh& mesh, boo
         const std::size_t face2 = entry.incident_faces[1].face_index;
         const double cot_alpha = CotangentAtOppositeVertex(mesh, edge, entry.incident_faces[0].opposite_vertex);
         const double cot_beta = CotangentAtOppositeVertex(mesh, edge, entry.incident_faces[1].opposite_vertex);
-        const double weight = cot_alpha + cot_beta;
+        const double weight = 1 / (cot_alpha + cot_beta);
 
         const Vec3 face1_vector = mesh.face_vectors[face1];
         const Vec3 face2_vector = mesh.face_vectors[face2];

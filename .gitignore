@@ -2,3 +2,9 @@ data/
 temp/
 *.obj
 *.exe
+.claude/
+lumped.png
+unlumped_crop.png
+unlumped.png
+lumped_crop.png
+*.ini

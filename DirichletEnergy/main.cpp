@@ -175,5 +175,9 @@ int main(int argc, char** argv) {
     std::cout << "Interior edges: " << result.interior_edge_count << std::endl;
     std::cout << "Total weighted energy: " << result.total_weighted_energy << std::endl;
     std::cout << "Average weighted energy: " << result.average_weighted_energy << std::endl;
+    std::cout << "Area weighted vector norm: " << result.area_weighted_vector_norm << std::endl;
+    if (result.area_weighted_vector_norm > 0.0) {
+        std::cout << "Total energy / vector norm: " << result.total_weighted_energy / result.area_weighted_vector_norm << std::endl;
+    }
     return 0;
 }
