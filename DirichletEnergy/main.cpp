@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 
+#include "Geometry.h"
 #include "MeshIO.h"
 #include "VectorDirichletEnergy.h"
 
@@ -42,10 +43,10 @@ dirichlet::TriangleMesh BuildSampleMesh() {
 
 void PrintUsage(const char* executable_name) {
     std::cout << "Usage: " << executable_name
-              << " [--interpolation average|rotation] [--nounfold] [--output output_mesh.ply] [input_mesh.ply]"
+              << " [--interpolation average|rotation|face] [--nounfold] [--output output_mesh.ply] [input_mesh.ply]"
               << std::endl;
     std::cout << "  Default input: .ply with face vf_0/vf_1/vf_2 properties" << std::endl;
-    std::cout << "  --interpolation, -i   Interpolate vertex vf_* to faces. Supported values: average, rotation"
+    std::cout << "  --interpolation, -i   Interpolate vertex vf_* to faces. Supported values: average, rotation, face"
               << std::endl;
     std::cout << "  --nounfold            Compare neighboring face vectors directly without normal transport"
               << std::endl;
@@ -162,6 +163,12 @@ int main(int argc, char** argv) {
             std::cerr << "Could not write mesh: " << error_message << std::endl;
             return 1;
         }
+    }
+
+    const std::size_t winding_inconsistencies = dirichlet::CountWindingInconsistencies(mesh);
+    if (winding_inconsistencies > 0) {
+        std::cerr << "Warning: Mesh has " << winding_inconsistencies
+                  << " inconsistently wound edge(s). Face normal directions may be unreliable." << std::endl;
     }
 
     std::string validation_error;

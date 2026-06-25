@@ -11,6 +11,7 @@ enum class VertexToFaceInterpolationMethod {
     kNone,
     kVertexAverage,
     kRotation,
+    kRotationFaceNormal,
 };
 
 bool TryParseVertexToFaceInterpolationMethod(const std::string& method_name,

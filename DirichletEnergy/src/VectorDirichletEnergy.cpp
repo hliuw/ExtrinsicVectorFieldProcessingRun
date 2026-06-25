@@ -157,7 +157,7 @@ DirichletEnergyResult ComputeVectorDirichletEnergy(const TriangleMesh& mesh, boo
         const Vec3 face2_vector = mesh.face_vectors[face2];
         Vec3 comparison_vector = face2_vector;
         
-        if (use_unfold) {
+        if (use_unfold) {   
             const Vec3 n1 = TriangleNormal(mesh, face1);
             const Vec3 n2 = TriangleNormal(mesh, face2);
             // check consistency of normal direction 

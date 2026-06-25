@@ -2,8 +2,10 @@
 
 #include <array>
 #include <cmath>
-#include <ostream>
 #include <cstddef>
+#include <map>
+#include <ostream>
+#include <utility>
 #include <vector>
 
 namespace dirichlet {
@@ -80,6 +82,28 @@ inline Vec3 TriangleNormal(const TriangleMesh& mesh, std::size_t face_index) {
     const Vec3& p1 = mesh.vertices.at(face.vertex_indices[1]);
     const Vec3& p2 = mesh.vertices.at(face.vertex_indices[2]);
     return Normalize(Cross(p1 - p0, p2 - p0));
+}
+
+// Returns the number of directed edges that appear in more than one face.
+// A consistently wound mesh has each directed edge (a→b) in exactly one face;
+// its neighbor uses the opposite direction (b→a). A non-zero return value means
+// some adjacent face pairs have inconsistent winding.
+inline std::size_t CountWindingInconsistencies(const TriangleMesh& mesh) {
+    std::map<std::pair<std::size_t, std::size_t>, std::size_t> directed_edge_count;
+    for (const Triangle& face : mesh.faces) {
+        for (int i = 0; i < 3; ++i) {
+            const std::size_t a = face.vertex_indices[i];
+            const std::size_t b = face.vertex_indices[(i + 1) % 3];
+            directed_edge_count[{a, b}]++;
+        }
+    }
+    std::size_t inconsistent_count = 0;
+    for (const auto& [edge, count] : directed_edge_count) {
+        if (count > 1) {
+            ++inconsistent_count;
+        }
+    }
+    return inconsistent_count;
 }
 
 inline std::ostream& operator<<(std::ostream& os, const Vec3& v) {

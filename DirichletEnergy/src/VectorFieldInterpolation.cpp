@@ -171,6 +171,52 @@ bool InterpolateByRotation(const TriangleMesh& mesh,
     return true;
 }
 
+bool InterpolateByRotationFaceNormal(const TriangleMesh& mesh,
+                                     const std::vector<Vec3>& vertex_vectors,
+                                     std::vector<Vec3>& face_vectors,
+                                     std::string& error_message) {
+    if (!ValidateVertexVectors(mesh, vertex_vectors, error_message)) {
+        return false;
+    }
+
+    std::vector<Vec3> vertex_normals;
+    if (!ComputeAngleWeightedVertexNormals(mesh, vertex_normals, error_message)) {
+        return false;
+    }
+
+    face_vectors.clear();
+    face_vectors.reserve(mesh.faces.size());
+    for (std::size_t face_index = 0; face_index < mesh.faces.size(); ++face_index) {
+        const Triangle& face = mesh.faces[face_index];
+        const std::array<std::size_t, 3>& indices = face.vertex_indices;
+        for (std::size_t vertex_index : indices) {
+            if (vertex_index >= vertex_vectors.size()) {
+                error_message = "Triangle references an out-of-range vertex vector index during rotation interpolation.";
+                face_vectors.clear();
+                return false;
+            }
+        }
+
+        const Vec3 face_normal = TriangleNormal(mesh, face_index);
+        if (Norm(face_normal) < kGeometricEpsilon) {
+            error_message = "Degenerate triangle encountered while computing face normal for rotation interpolation.";
+            face_vectors.clear();
+            return false;
+        }
+
+        Vec3 accumulated_face_vector{};
+        for (std::size_t vertex_index : indices) {
+            const Vec3 rotated_vector = RotateVectorBetweenNormals(
+                vertex_vectors[vertex_index], vertex_normals[vertex_index], face_normal);
+            accumulated_face_vector = accumulated_face_vector + rotated_vector;
+        }
+
+        face_vectors.push_back(accumulated_face_vector / 3.0);
+    }
+
+    return true;
+}
+
 }  // namespace
 
 bool TryParseVertexToFaceInterpolationMethod(const std::string& method_name,
@@ -189,6 +235,11 @@ bool TryParseVertexToFaceInterpolationMethod(const std::string& method_name,
         method = VertexToFaceInterpolationMethod::kRotation;
         return true;
     }
+    if (normalized == "face" || normalized == "rotation-face-normal" || normalized == "rotationfacenormal" ||
+        normalized == "face-normal-rotation") {
+        method = VertexToFaceInterpolationMethod::kRotationFaceNormal;
+        return true;
+    }
     return false;
 }
 
@@ -202,6 +253,8 @@ bool InterpolateVertexVectorsToFaceVectors(const TriangleMesh& mesh,
             return InterpolateByVertexAverage(mesh, vertex_vectors, face_vectors, error_message);
         case VertexToFaceInterpolationMethod::kRotation:
             return InterpolateByRotation(mesh, vertex_vectors, face_vectors, error_message);
+        case VertexToFaceInterpolationMethod::kRotationFaceNormal:
+            return InterpolateByRotationFaceNormal(mesh, vertex_vectors, face_vectors, error_message);
         case VertexToFaceInterpolationMethod::kNone:
             face_vectors.clear();
             error_message = "No interpolation method was selected.";
